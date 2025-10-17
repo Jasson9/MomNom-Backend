@@ -2,6 +2,7 @@
 
 ## Installation
 dotnet restore
+
 dotnet tool install --global dotnet-ef
 
 - create/update EF model (after updating db tables/field):
