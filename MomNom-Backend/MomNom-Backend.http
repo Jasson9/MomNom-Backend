@@ -1,0 +1,6 @@
+@MonNom_Backend_HostAddress = http://localhost:5144
+
+GET {{MonNom_Backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
