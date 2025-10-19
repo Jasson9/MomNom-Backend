@@ -27,4 +27,4 @@ RUN dotnet publish "./MomNom-Backend.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MonNom-Backend.dll"]
+ENTRYPOINT ["dotnet", "MomNom-Backend.dll"]
