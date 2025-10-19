@@ -17,4 +17,4 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file MomNom-Backend/Dockerfile --tag momnom-backend:$(date +%s)
     - name: Deploy image
-      run: docker run -d --tag momnom-backend:$(date +%s)
+      run: docker run -t momnom-backend:$(date +%s)
