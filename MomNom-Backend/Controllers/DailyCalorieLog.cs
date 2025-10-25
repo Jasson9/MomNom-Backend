@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MomNom_Backend.Handler;
 using MomNom_Backend.Model.Db;
 using MomNom_Backend.Model.Exception;
 using MomNom_Backend.Model.Object;
@@ -15,10 +16,12 @@ namespace MomNom_Backend.Controllers
     public class DailyCalorieLog : ControllerBase
     {
         private readonly MomNomContext _context;
+        private readonly DailyCalorieHandler _dailyCalorieHandler;
 
         public DailyCalorieLog(MomNomContext context)
         {
             _context = context;
+            _dailyCalorieHandler = new DailyCalorieHandler(context);
         }
 
         [HttpPost]
@@ -28,27 +31,7 @@ namespace MomNom_Backend.Controllers
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
 
-                List<DailyLog> dailyLogs = _context.TrDailyCalorieLogs.Where((e) => e.UserId == user.UserId && e.Date == date).Include(e => e.Food).ThenInclude(s => s.MsFoodNutrients).ThenInclude(t => t.Nutrient).Select(
-                    e => new DailyLog
-                    {
-                        PlanId = e.PlanId,
-                        UserId = e.UserId,
-                        FoodId = e.FoodId,
-                        FoodName = e.Food.FoodName,
-                        Calorie = e.Food.Calorie,
-                        NutrientsList = e.Food.MsFoodNutrients.Select(
-                            t => new Nutrient
-                            {
-                                NutrientName = t.Nutrient.NutrientName,
-                                NutrientAmount = t.Amount,
-                                NutrientUnit = t.Nutrient.Unit
-                            }
-                            ).ToList()
-                        //NutrientName = e.Food.MsFoodNutrients.Select(t => t.Nutrient.NutrientName).ToList(),
-                        //NutrientAmount = e.Food.MsFoodNutrients.Select(t => t.Amount).ToList()
-
-                    }
-                    ).ToList() ?? [];
+                List<DailyLog> dailyLogs = await _dailyCalorieHandler.GetDailyCalorieLogAll(user, date);
 
                 return new BaseResponse<DailyCalorieLogResponse>(new DailyCalorieLogResponse { dailyLogs = dailyLogs });
             }

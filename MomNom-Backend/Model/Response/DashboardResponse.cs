@@ -6,5 +6,6 @@ namespace MomNom_Backend.Model.Response
     {
         public List<Plan> Plans { get; set; } = [];
         public string Username {get; set;}
+        public List<DailyLog> dailyLogs { get; set; }
     }
 }

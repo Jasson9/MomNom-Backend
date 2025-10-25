@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Shared;
 using MomNom_Backend;
+using MomNom_Backend.Handler;
 using MomNom_Backend.Model.Db;
 using MomNom_Backend.Model.Exception;
 using MomNom_Backend.Model.Object;
@@ -22,10 +23,12 @@ namespace MomNom_Backend.Controllers
     public class Dashboard : ControllerBase
     {
         private readonly MomNomContext _context;
+        private readonly DailyCalorieHandler _dailyCalorieHandler;
 
         public Dashboard(MomNomContext context)
         {
             _context = context;
+            _dailyCalorieHandler = new DailyCalorieHandler(context);
         }
 
         [HttpPost]
@@ -50,8 +53,10 @@ namespace MomNom_Backend.Controllers
                     }
                     ).ToList() ?? [];
 
+                List<DailyLog> dailyLog = await _dailyCalorieHandler.GetDailyCalorieLogAll(user, DateOnly.FromDateTime(DateTime.Now));
+                List<DailyLog> logs = dailyLog.Take(4).ToList();
 
-                return new BaseResponse<DashboardResponse>(new DashboardResponse { Plans = plans, Username = user.Username});
+                return new BaseResponse<DashboardResponse>(new DashboardResponse { Plans = plans, Username = user.Username, dailyLogs = logs});
             }
             catch (UnauthorizedException<MsUser> ex)
             {
