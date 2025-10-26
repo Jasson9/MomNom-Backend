@@ -60,20 +60,23 @@ namespace MomNom_Backend.Controllers
                     throw new BadRequestException<CreatePlanResponse>("Invalid Pre Pregnancy Weight");
                 }
 
-                if(planReq.age == 0)
-                {
-                    throw new BadRequestException<CreatePlanResponse>("Invalid Age");
-                }
+                var today = DateTime.Today;
+
+                var age = today.Year - dateOfBirth.Year;
+                if (dateOfBirth.Date > today.AddYears(-age)) age--;
 
                 // TODO: Add BMI Calculate, calorie, etc here or use trigger instead
                 string bmiCategory = "Normal";
                 decimal calFirstTrimester = 200;
                 decimal calSecondTrimester = 300;
 
+                var planCnt = _context.MsPlans.Where(e => e.UserId == user.UserId).Count();
+
                 var plan = _context.MsPlans.Add(
                     new MsPlan
                         {
-                            Age = planReq.age,
+                            Age = age,
+                            PlanId = planCnt,
                             StartWeek = planReq.weekPregnancy,
                             Weight = planReq.currentWeight,
                             PrePregnancyWeight = planReq.prePregnancyWeight,
