@@ -9,6 +9,8 @@ public partial class MsPlan
 
     public int UserId { get; set; }
 
+    public string? planStatus {  get; set; }
+
     public int? StartWeek { get; set; }
 
     public decimal? Weight { get; set; }

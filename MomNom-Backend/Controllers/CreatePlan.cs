@@ -55,25 +55,56 @@ namespace MomNom_Backend.Controllers
                     throw new BadRequestException<CreatePlanResponse>("Invalid Current Weight");
                 }
 
-                if (planReq.prePregnancyWeight == 0)
+                var today = DateTime.Today;
+
+                var age = today.Year - dateOfBirth.Year;
+                if (dateOfBirth.Date > today.AddYears(-age)) age--;
+
+                var pregnancyDay = planReq.weekPregnancy * 7;
+                decimal calcPrePregnancyWeight = 0;
+                if (pregnancyDay > 84)
                 {
-                    throw new BadRequestException<CreatePlanResponse>("Invalid Pre Pregnancy Weight");
+                    calcPrePregnancyWeight = planReq.currentWeight - 1 - (0.44m * (planReq.weekPregnancy - 12));
+
+                } else
+                {
+                    calcPrePregnancyWeight = planReq.currentWeight - ((1 / 84) * pregnancyDay);
                 }
 
-                if(planReq.age == 0)
+                var bmiScore = calcPrePregnancyWeight / (planReq.height * planReq.height);
+                string bmiCategory =  " ";
+                decimal tdee = 0;
+                var extraCalorie = 0;
+                tdee = ((10 * calcPrePregnancyWeight) + (6.25m * planReq.height) - (5 * age) - 161) * 1.375m;
+
+                if (bmiScore < 18.5m)
                 {
-                    throw new BadRequestException<CreatePlanResponse>("Invalid Age");
+                    bmiCategory = "Underweight";
+                    extraCalorie = 395;
+                } else if (bmiScore < 24.9m)
+                {
+                    bmiCategory = "Normal";
+                    extraCalorie = 275;
+                } else if(bmiScore < 29.9m)
+                {
+                    bmiCategory = "Overweight";
+                    extraCalorie = 204;
+                } else
+                {
+                    bmiCategory = "Obesity";
+                    extraCalorie = -115;
                 }
 
-                // TODO: Add BMI Calculate, calorie, etc here or use trigger instead
-                string bmiCategory = "Normal";
-                decimal calFirstTrimester = 200;
-                decimal calSecondTrimester = 300;
+                decimal calFirstTrimester = tdee + 85;
+                decimal calSecondTrimester = tdee + extraCalorie;
+
+                var planCnt = _context.MsPlans.Where(e => e.UserId == user.UserId).Count();
 
                 var plan = _context.MsPlans.Add(
                     new MsPlan
                         {
-                            Age = planReq.age,
+                            Age = age,
+                            PlanId = planCnt,
                             StartWeek = planReq.weekPregnancy,
                             Weight = planReq.currentWeight,
                             PrePregnancyWeight = planReq.prePregnancyWeight,

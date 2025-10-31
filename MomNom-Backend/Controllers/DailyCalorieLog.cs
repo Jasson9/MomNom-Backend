@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MomNom_Backend.Handler;
+using MomNom_Backend.Model;
 using MomNom_Backend.Model.Db;
 using MomNom_Backend.Model.Exception;
 using MomNom_Backend.Model.Object;
 using MomNom_Backend.Model.Request;
 using MomNom_Backend.Model.Response;
+using MySqlConnector;
 
 namespace MomNom_Backend.Controllers
 {
@@ -16,12 +18,12 @@ namespace MomNom_Backend.Controllers
     public class DailyCalorieLog : ControllerBase
     {
         private readonly MomNomContext _context;
-        private readonly DailyCalorieHandler _dailyCalorieHandler;
+        private readonly CallProcedureHandler _procedureHandler;
 
         public DailyCalorieLog(MomNomContext context)
         {
             _context = context;
-            _dailyCalorieHandler = new DailyCalorieHandler(context);
+            _procedureHandler = new CallProcedureHandler(context);
         }
 
         [HttpPost]
@@ -30,8 +32,9 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
+                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId).Count();
 
-                List<DailyLog> dailyLogs = await _dailyCalorieHandler.GetDailyCalorieLogAll(user, date);
+                List<DailyLog> dailyLogs = await _procedureHandler.GetDailyFoodReport(user, planId, date);
 
                 return new BaseResponse<DailyCalorieLogResponse>(new DailyCalorieLogResponse { dailyLogs = dailyLogs });
             }

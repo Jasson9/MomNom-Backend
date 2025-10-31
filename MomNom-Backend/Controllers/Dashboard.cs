@@ -23,12 +23,12 @@ namespace MomNom_Backend.Controllers
     public class Dashboard : ControllerBase
     {
         private readonly MomNomContext _context;
-        private readonly DailyCalorieHandler _dailyCalorieHandler;
+        private readonly CallProcedureHandler _procedureHandler;
 
         public Dashboard(MomNomContext context)
         {
             _context = context;
-            _dailyCalorieHandler = new DailyCalorieHandler(context);
+            _procedureHandler = new CallProcedureHandler(context);
         }
 
         [HttpPost]
@@ -37,6 +37,7 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
+                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.planStatus == "AC").Count();
 
                 List<Plan> plans = _context.MsPlans.Where((e) => e.UserId == user.UserId).Select(
                     e => new Plan
@@ -53,7 +54,7 @@ namespace MomNom_Backend.Controllers
                     }
                     ).ToList() ?? [];
 
-                List<DailyLog> dailyLog = await _dailyCalorieHandler.GetDailyCalorieLogAll(user, DateOnly.FromDateTime(DateTime.Now));
+                List<DailyLog> dailyLog = await _procedureHandler.GetDailyFoodReport(user, planId, DateOnly.FromDateTime(DateTime.Now));
                 List<DailyLog> logs = dailyLog.Take(4).ToList();
 
                 return new BaseResponse<DashboardResponse>(new DashboardResponse { Plans = plans, Username = user.Username, dailyLogs = logs});
