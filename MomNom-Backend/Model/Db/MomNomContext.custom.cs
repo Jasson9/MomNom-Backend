@@ -13,7 +13,13 @@ public partial class MomNomContext : DbContext
     //ProcedureTestOutput result etc here...
     public DbSet<ProcedureTestOutput> procedureTestResults { get; set; }
 
-    public DbSet<DailyLog> GetDailyFoodDetail {  get; set; }
+    public DbSet<DailyLog> GetDailyFoodDetailResult {  get; set; }
+
+    public DbSet<WeeklyLog> GetWeeklyNutritionReport {  get; set; }
+
+    public DbSet<NutrientPlanProgress> GetDailyNutritionReport { get; set; }
+
+    public DbSet<WeightGain> GetWeightGainReport { get; set; }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
     {

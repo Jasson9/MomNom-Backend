@@ -2,10 +2,10 @@
 {
     public class Nutrient
     {
-        public string NutrientName { get; set; }
+        public string nutrientName { get; set; }
 
-        public decimal NutrientAmount { get; set; }
+        public decimal amount { get; set; }
 
-        public string NutrientUnit { get; set; }
+        public string unit { get; set; }
     }
 }
