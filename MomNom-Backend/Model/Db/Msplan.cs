@@ -9,7 +9,7 @@ public partial class MsPlan
 
     public int UserId { get; set; }
 
-    public string? planStatus {  get; set; }
+    public string? PlanStatus { get; set; }
 
     public int? StartWeek { get; set; }
 
@@ -26,6 +26,8 @@ public partial class MsPlan
     public decimal? CalFirstTrimester { get; set; }
 
     public decimal? CalSecondThirdTrimester { get; set; }
+
+    public DateOnly? StartDt { get; set; }
 
     public virtual MsRecommendedWeight BmiCategoryNavigation { get; set; } = null!;
 

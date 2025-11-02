@@ -138,9 +138,16 @@ public partial class MomNomContext : DbContext
             entity.Property(e => e.Height)
                 .HasPrecision(10, 2)
                 .HasColumnName("height");
+            entity.Property(e => e.PlanStatus)
+                .HasMaxLength(4)
+                .HasDefaultValueSql("_utf8mb4\\'AC\\'")
+                .HasColumnName("planStatus");
             entity.Property(e => e.PrePregnancyWeight)
                 .HasPrecision(10, 2)
                 .HasColumnName("prePregnancyWeight");
+            entity.Property(e => e.StartDt)
+                .HasDefaultValueSql("curdate()")
+                .HasColumnName("startDt");
             entity.Property(e => e.StartWeek).HasColumnName("startWeek");
             entity.Property(e => e.Weight)
                 .HasPrecision(10, 2)

@@ -94,15 +94,9 @@ namespace MomNom_Backend.Controllers
                     bmiCategory = "Obesity";
                     extraCalorie = -115;
                 }
-                var today = DateTime.Today;
-
-                var age = today.Year - dateOfBirth.Year;
-                if (dateOfBirth.Date > today.AddYears(-age)) age--;
 
                 decimal calFirstTrimester = tdee + 85;
                 decimal calSecondTrimester = tdee + extraCalorie;
-
-                var planCnt = _context.MsPlans.Where(e => e.UserId == user.UserId).Count();
 
                 var planCnt = _context.MsPlans.Where(e => e.UserId == user.UserId).Count();
 
