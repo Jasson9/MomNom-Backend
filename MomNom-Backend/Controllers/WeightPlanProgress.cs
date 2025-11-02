@@ -29,7 +29,7 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.planStatus == "AC").Count();
+                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
 
                 List<WeightGain> weightGainList = await _procedureHandler.GetWeightGainReport(user.UserId, planId, DateOnly.FromDateTime(DateTime.Now));
 
@@ -65,7 +65,7 @@ namespace MomNom_Backend.Controllers
             {
 
             var user = await Auth.ValidateAuthToken(_context, authentication);
-            var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.planStatus == "AC").Count();
+            var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
 
             if (weightReq.Month < 1 || weightReq.Month > 12)
             {

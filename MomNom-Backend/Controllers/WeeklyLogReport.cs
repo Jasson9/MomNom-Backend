@@ -28,7 +28,7 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.planStatus == "AC").Count();
+                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
                 var monthYearList = await _context.TrDailyCalorieLogs.Select(e => new {
                     e.Date.Month,
                     e.Date.Year
