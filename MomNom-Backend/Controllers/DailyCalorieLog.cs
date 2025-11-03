@@ -29,16 +29,24 @@ namespace MomNom_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<DailyCalorieLogResponse>>> Dailycalorielog([FromHeader] string authentication, [FromBody] DateOnly date)
+        public async Task<ActionResult<BaseResponse<DailyCalorieLogResponse>>> Dailycalorielog([FromHeader] string authentication, [FromBody] DailyCalorieLogRequest req)
         {
             try
             {
+                if(req.date == null)
+                {
+                    throw new BadRequestException<DailyCalorieLogResponse>("date cannot be null");
+                }
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
+                var plan = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").FirstOrDefault();
 
-                List<DailyLog> dailyLogs = await _procedureHandler.GetDailyFoodReport(user.UserId, planId, date);
+                if(plan == null)
+                {
+                    throw new BadRequestException<DailyCalorieLogResponse>("Active plan not found. Please create a plan first.");
+                }
 
-                    return new BaseResponse<DailyCalorieLogResponse>(new DailyCalorieLogResponse { dailyLogs = dailyLogs });
+                List<DailyLog> dailyLogs = await _procedureHandler.GetDailyFoodReport(user.UserId, plan.PlanId, req.date);
+                return new BaseResponse<DailyCalorieLogResponse>(new DailyCalorieLogResponse { dailyLogs = dailyLogs });
             }
             catch (UnauthorizedException<MsUser> ex)
             {

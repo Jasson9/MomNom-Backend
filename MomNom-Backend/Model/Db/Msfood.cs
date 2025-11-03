@@ -11,6 +11,8 @@ public partial class MsFood
 
     public decimal Calorie { get; set; }
 
+    public decimal? WeightPerServing { get; set; }
+
     public virtual ICollection<MsFoodNutrient> MsFoodNutrients { get; set; } = new List<MsFoodNutrient>();
 
     public virtual ICollection<TrDailyCalorieLog> TrDailyCalorieLogs { get; set; } = new List<TrDailyCalorieLog>();

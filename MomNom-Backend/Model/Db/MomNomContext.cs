@@ -60,6 +60,9 @@ public partial class MomNomContext : DbContext
             entity.Property(e => e.FoodName)
                 .HasMaxLength(100)
                 .HasColumnName("foodName");
+            entity.Property(e => e.WeightPerServing)
+                .HasPrecision(10)
+                .HasColumnName("weightPerServing");
         });
 
         modelBuilder.Entity<MsFoodNutrient>(entity =>

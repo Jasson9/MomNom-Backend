@@ -104,7 +104,7 @@ namespace MomNom_Backend.Controllers
                     new MsPlan
                         {
                             Age = age,
-                            PlanId = planCnt,
+                            PlanId = planCnt+1,
                             StartWeek = planReq.weekPregnancy,
                             Weight = planReq.currentWeight,
                             PrePregnancyWeight = planReq.prePregnancyWeight,

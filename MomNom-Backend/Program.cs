@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MomNom_Backend;
+using MomNom_Backend.Model;
 using MomNom_Backend.Model.Db;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +45,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+AppSettings.Initialize(builder.Configuration);
+
+Console.WriteLine(AppSettings.Secrets);
 //app.Use(async (context, next) =>
 //{
 //    Console.WriteLine("Before");

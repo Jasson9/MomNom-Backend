@@ -34,5 +34,12 @@ namespace MomNom_Backend.Model.Response
         public int statusCode { get; set; }
         public string statusMessage { get; set; }
         public object? data { get; set; }
+
+        public BaseResponse() : base()
+        {
+            this.statusCode = 200;
+            this.statusMessage = "OK";
+            this.data = data;
+        }
     }
 }

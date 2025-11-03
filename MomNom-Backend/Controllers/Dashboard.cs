@@ -39,8 +39,22 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
+                var plan = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").FirstOrDefault();
                 DateOnly date = DateOnly.FromDateTime(DateTime.Now);
+
+                // return empty plan, front end will redirect to create plan page
+                if (plan == null)
+                {
+                    return new BaseResponse<DashboardResponse>(
+                    new DashboardResponse{
+                        Plans = new List<Plan>(),
+                        Username = user.Username,
+                        RemainingNutritions = new List<object>(),
+                        CurrWeightGain = null,
+                        DailyLogs = new List<DailyLog>(),
+                        TipsList = new List<string>()
+                    });
+                }
 
                 List<Plan> plans = _context.MsPlans.Where((e) => e.UserId == user.UserId).Select(
                     e => new Plan
@@ -65,7 +79,7 @@ namespace MomNom_Backend.Controllers
                     "Fiber"
                 };
 
-                List<NutrientPlanProgress> nutrientPlanProgress = await _procedureHandler.GetDailyNutritionReport(user.UserId, planId, date);
+                List<NutrientPlanProgress> nutrientPlanProgress = await _procedureHandler.GetDailyNutritionReport(user.UserId, plan.PlanId, date);
                 List<NutrientPlanProgress> nutrients = nutrientPlanProgress.Where(x => dashboardNutrients.Contains(x.nutrientName)).ToList();
                 var remainingNutritions = nutrients.Select(x => new
                 {
@@ -73,7 +87,7 @@ namespace MomNom_Backend.Controllers
                     remainingNutrient = x.goalAmount - x.nutrientAmount
                 }).ToList();
 
-                List<WeightGain> weightGainList = await _procedureHandler.GetWeightGainReport(user.UserId, planId, date);
+                List<WeightGain> weightGainList = await _procedureHandler.GetWeightGainReport(user.UserId, plan.PlanId, date);
                 var currWeightGain = weightGainList.OrderBy(x => x.year).ThenBy(x => x.monthNumber).Select(x => new WeightGainCalc
                 {
                     MonthYear = x.monthName,
@@ -82,28 +96,10 @@ namespace MomNom_Backend.Controllers
                     Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2) + "%"
                 }).FirstOrDefault();
 
-                List<DailyLog> dailyLog = await _procedureHandler.GetDailyFoodReport(user.UserId, planId, date);
+                List<DailyLog> dailyLog = await _procedureHandler.GetDailyFoodReport(user.UserId, plan.PlanId, date);
                 List<DailyLog> logs = dailyLog.Take(4).ToList();
 
-                //Mungkin akan nambah
-                var tipsList = new List<string>
-                {
-                    "Make sure you receive at least four antenatal (before-birth) visits from a health care professional",
-                    "Ask your health worker about when to come for antenatal care",
-                    "Learn about danger signs in pregnancy like bleeding, fever, swollen hands and feet, and blurred vision",
-                    "To avoid complications, plan for your baby to be delivered at a health care facility by a skilled birth attendant, which can include a midwife, nurse or physician",
-                    "Women go through emotional, physical and psychological changes like gaining weight and losing self-confidence during and after pregnancy. It's fine to seek for help :)",
-                    "Speak to a family member or friend about what you’re going through",
-                    "Join a mothers group or an association of women with children to connect with other mothers",
-                    "It is advised to put the child on the mother’s chest immediately after birth",
-                    "Gently soothe, stroke and hold your child, smiling and talking to the baby at this time are good for stimulation",
-                    "Aim for at least eight hours of sleep every night. Resting on the left or right side will keep blood flowing well to the baby and ease swelling",
-                    "Avoid nausea triggers. Whether it's the smell of foods in the break room or other odors or tastes"
-                };
-                var random = new Random();
-                var randomTips = tipsList.OrderBy(x => random.Next()).Take(4).ToList();
-
-                return new BaseResponse<DashboardResponse>(new DashboardResponse { Plans = plans, Username = user.Username, RemainingNutritions = remainingNutritions, CurrWeightGain = currWeightGain , DailyLogs = logs, TipsList = randomTips});
+                return new BaseResponse<DashboardResponse>(new DashboardResponse { Plans = plans, Username = user.Username, RemainingNutritions = remainingNutritions, CurrWeightGain = currWeightGain , DailyLogs = logs});
             }
             catch (UnauthorizedException<MsUser> ex)
             {

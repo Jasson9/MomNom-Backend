@@ -3,6 +3,7 @@ using MomNom_Backend.Handler;
 using MomNom_Backend.Model.Db;
 using MomNom_Backend.Model.Exception;
 using MomNom_Backend.Model.Object;
+using MomNom_Backend.Model.Request;
 using MomNom_Backend.Model.Response;
 
 namespace MomNom_Backend.Controllers
@@ -21,14 +22,18 @@ namespace MomNom_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<NutrientPlanProgressResponse>>> dailyNutritionProgress([FromHeader] string authentication, [FromBody] DateOnly date)
+        public async Task<ActionResult<BaseResponse<NutrientPlanProgressResponse>>> dailyNutritionProgress([FromHeader] string authentication, [FromBody] NutritionPlanProgressRequest req)
         {
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
+                var plan = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").FirstOrDefault();
 
-                List<NutrientPlanProgress> nutrientPlanProgress = await _procedureHandler.GetDailyNutritionReport(user.UserId, planId, date);
+                if(plan == null) {
+                    throw new BadRequestException<NutrientPlanProgressResponse>("Active plan not found. Please create a plan first.");
+                }
+
+                List<NutrientPlanProgress> nutrientPlanProgress = await _procedureHandler.GetDailyNutritionReport(user.UserId, plan.PlanId, req.date);
 
                 return new BaseResponse<NutrientPlanProgressResponse>(new NutrientPlanProgressResponse { nutrientPlanProgresses = nutrientPlanProgress });
             }

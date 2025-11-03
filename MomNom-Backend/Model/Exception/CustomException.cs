@@ -39,8 +39,23 @@ namespace MomNom_Backend.Model.Exception
         public BadRequestException(string errorMessage) : base(400, errorMessage) { }
     }
 
+    public class NotFoundException<T> : BaseException<T>
+    {
+        public NotFoundException(string errorMessage) : base(404, errorMessage) { }
+    }
+
     public class UnauthorizedException<T> : BaseException<T>
     {
         public UnauthorizedException(string errorMessage) : base(401, errorMessage) { }
+    }
+
+    public class FetchNutritionException<T> : BaseException<T>
+    {
+        public FetchNutritionException(string errorMessage) : base(500, errorMessage) { }
+    }
+
+    public class FetchNutritionNotFoundException<T> : BaseException<T>
+    {
+        public FetchNutritionNotFoundException(string errorMessage) : base(404, errorMessage) { }
     }
 }

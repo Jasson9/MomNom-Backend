@@ -28,7 +28,13 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
+                var plan = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").FirstOrDefault();
+
+                if(plan == null)
+                {
+                    throw new BadRequestException<WeeklyLogResponse>("Active plan not found. Please create a plan first.");
+                }
+
                 var monthYearList = await _context.TrDailyCalorieLogs.Select(e => new {
                     e.Date.Month,
                     e.Date.Year
@@ -37,7 +43,7 @@ namespace MomNom_Backend.Controllers
                 var allWeeklyLogList = new List<WeeklyLog>();
                 foreach ( var monthYear in monthYearList )
                 {
-                    List<WeeklyLog> weeklyLogs = await _procedureHandler.GetWeeklyNutritionReport(user.UserId, planId, monthYear.Month, monthYear.Year);
+                    List<WeeklyLog> weeklyLogs = await _procedureHandler.GetWeeklyNutritionReport(user.UserId, plan.PlanId, monthYear.Month, monthYear.Year);
 
                     allWeeklyLogList.AddRange(weeklyLogs);
 

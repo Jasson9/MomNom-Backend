@@ -5,6 +5,8 @@ using MomNom_Backend.Model.Exception;
 using MomNom_Backend.Model.Object;
 using MomNom_Backend.Model.Request;
 using MomNom_Backend.Model.Response;
+using Newtonsoft.Json;
+using NuGet.Protocol;
 using System.Drawing;
 using System.Numerics;
 
@@ -29,9 +31,13 @@ namespace MomNom_Backend.Controllers
             try
             {
                 var user = await Auth.ValidateAuthToken(_context, authentication);
-                var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
+                var plan = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").FirstOrDefault();
 
-                List<WeightGain> weightGainList = await _procedureHandler.GetWeightGainReport(user.UserId, planId, DateOnly.FromDateTime(DateTime.Now));
+                if (plan == null)
+                {
+                    throw new BadRequestException<WeightPlanProgressResponse>("Active plan not found. Please create a plan first.");
+                }
+                List<WeightGain> weightGainList = await _procedureHandler.GetWeightGainReport(user.UserId, plan.PlanId, DateOnly.FromDateTime(DateTime.Now));
 
                 var weightGainListCalc = weightGainList.OrderBy(x => x.year).ThenBy(x => x.monthNumber).Select(x => new WeightGainCalc
                 {
@@ -59,51 +65,72 @@ namespace MomNom_Backend.Controllers
         }
 
         [HttpPost("AddNewWeight")]
-        public async Task<ActionResult<BaseResponse<TrMonthlyWeight>>> AddNewMonthlyWeight([FromHeader] string authentication, [FromBody] NewWeightRequest weightReq)
+        public async Task<ActionResult<BaseResponse<NewWeightRequest>>> AddNewMonthlyWeight([FromHeader] string authentication, [FromBody] NewWeightRequest weightReq)
         {
             try
             {
 
-            var user = await Auth.ValidateAuthToken(_context, authentication);
-            var planId = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").Count();
+                var user = await Auth.ValidateAuthToken(_context, authentication);
+                var plan = _context.MsPlans.Where(e => e.UserId == user.UserId && e.PlanStatus == "AC").FirstOrDefault();
 
-            if (weightReq.Month < 1 || weightReq.Month > 12)
-            {
-                throw new BadRequestException<TrMonthlyWeight>("Invalid month!");
-            }
-            if (weightReq.Year == 0)
-            {
-                throw new BadRequestException<TrMonthlyWeight>("Invalid year!");
-            }
-            if (weightReq.Weight == 0)
-            {
-                throw new BadRequestException<TrMonthlyWeight>("Invalid weight!");
-            }
+                if (plan == null)
+                {
+                    throw new BadRequestException<TrMonthlyWeight>("Active plan not found. Please create a plan first.");
+                }
 
-            var newMonthlyWeight = _context.TrMonthlyWeights.Add(new TrMonthlyWeight
-            {
-                UserId = user.UserId,
-                PlanId = planId,
-                Weight = weightReq.Weight,
-                Year = weightReq.Year,
-                Month = weightReq.Month
-            });
-            await _context.SaveChangesAsync();
-            
-            return new BaseResponse<TrMonthlyWeight>(newMonthlyWeight.Entity);
+                if (weightReq.Month < 1 || weightReq.Month > 12)
+                {
+                    throw new BadRequestException<TrMonthlyWeight>("Invalid month!");
+                }
+                if (weightReq.Year == 0)
+                {
+                    throw new BadRequestException<TrMonthlyWeight>("Invalid year!");
+                }
+                if (weightReq.Weight == 0)
+                {
+                    throw new BadRequestException<TrMonthlyWeight>("Invalid weight!");
+                }
+
+                var tempWeight = _context.TrMonthlyWeights.Where(e => e.UserId == user.UserId && e.PlanId == plan.PlanId && e.Month == weightReq.Month && e.Year == weightReq.Year).FirstOrDefault();
+
+                if (tempWeight != null)
+                {
+                    tempWeight.Weight = weightReq.Weight;
+                    _context.TrMonthlyWeights.Update(tempWeight);
+                    await _context.SaveChangesAsync();
+
+                    return new BaseResponse<NewWeightRequest>(weightReq);
+                }
+                else
+                {
+                    var newMonthlyWeight = _context.TrMonthlyWeights.Add(new TrMonthlyWeight
+                    {
+                        UserId = user.UserId,
+                        PlanId = plan.PlanId,
+                        Weight = weightReq.Weight,
+                        Year = weightReq.Year,
+                        Month = weightReq.Month
+                    });
+                    await _context.SaveChangesAsync();
+
+                    return new BaseResponse<NewWeightRequest>(weightReq);
+                }
+
+
+
             }
             catch (UnauthorizedException<MsUser> ex)
             {
-                return new UnauthorizedException<TrMonthlyWeight>(ex.ErrorMessage).toResponseOutput();
+                return new UnauthorizedException<NewWeightRequest>(ex.ErrorMessage).toResponseOutput();
             }
-            catch (BaseException<TrMonthlyWeight> ex)
+            catch (BaseException<NewWeightRequest> ex)
             {
                 return ex.toResponseOutput();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new InternalServerErrorException<TrMonthlyWeight>("Unexpected internal server error occured").toResponseOutput();
+                return new InternalServerErrorException<NewWeightRequest>("Unexpected internal server error occured").toResponseOutput();
             }
         }
     }
