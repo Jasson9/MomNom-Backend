@@ -44,7 +44,8 @@ namespace MomNom_Backend.Controllers
                     MonthYear = x.monthName + " " + x.year,
                     MonthlyGain = x.monthlyGain,
                     TotalGain = x.totalGain,
-                    Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2) + "%"
+                    RecGain = x.recGain,
+                    Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2) + "%",
                 }).ToList() ?? [];
 
                 return new BaseResponse<WeightPlanProgressResponse>(new WeightPlanProgressResponse { weightGainProgress = weightGainListCalc });

@@ -8,6 +8,8 @@
 
         public decimal TotalGain { get; set; }
 
+        public decimal RecGain { get; set; }
+
         public string Percentage {  get; set; }
     }
 }
