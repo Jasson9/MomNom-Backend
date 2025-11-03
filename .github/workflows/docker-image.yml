@@ -13,8 +13,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - shell: bash
     - name: Copy Appsettings.json
+    - shell: bash
       run: echo -e ${{secrets.APPSETTINGS}} > MomNom-Backend/appsettings.json
     
     - uses: actions/checkout@v4
