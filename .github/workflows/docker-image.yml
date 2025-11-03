@@ -14,7 +14,6 @@ jobs:
 
     steps:
     - name: Copy Appsettings.json
-    - shell: bash
       run: echo -e ${{secrets.APPSETTINGS}} > MomNom-Backend/appsettings.json
     
     - uses: actions/checkout@v4
@@ -28,7 +27,6 @@ jobs:
     steps:
     
     - name: Build Dockercompose and up
-    - shell: bash
       run: |
         cd /var/lib/casaos/apps/yourprojectname
         docker compose build --no-cache
