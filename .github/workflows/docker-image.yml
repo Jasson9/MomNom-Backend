@@ -14,20 +14,18 @@ jobs:
 
     steps:
     - name: Copy Appsettings.json
-      run: echo -e ${{secrets.APPSETTINGS}} > MomNom-Backend/appsettings.json
+      env: # Set the secret as an input
+        APP_SETTINGS: ${{secrets.APPSETTINGS}}
+      run: |
+        echo -e "$APP_SETTINGS" > MomNom-Backend/appsettings.json
     
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build . --file MomNom-Backend/Dockerfile --tag momnom-backend:latest
-
-  deploy:
-
-    runs-on: self-hosted
-    
-    steps:
-    
+      
     - name: Build Dockercompose and up
       run: |
-        cd /var/lib/casaos/apps/yourprojectname
-        docker compose build --no-cache
-        docker compose up -d
+            cd /var/lib/casaos/apps/yourprojectname
+            docker compose build --no-cache
+            docker compose up -d
+        
