@@ -26,10 +26,12 @@
     public static class AppSettings
     {
         public static Secret Secrets { get; private set; }
+        public static string FoodDetectionEndpoint { get; private set; }
 
         public static void Initialize(IConfiguration configuration)
         {
             Secrets = new Secret(configuration.GetSection("Secrets"));
+            FoodDetectionEndpoint = configuration.GetValue<string>("FoodDetectionEndpoint") ?? "";
             // Or bind a section: configuration.GetSection("MySection").Bind(MyStaticObject);
         }
     }
