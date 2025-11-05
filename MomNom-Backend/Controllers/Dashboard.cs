@@ -52,7 +52,6 @@ namespace MomNom_Backend.Controllers
                         RemainingNutritions = new List<object>(),
                         CurrWeightGain = null,
                         DailyLogs = new List<DailyLog>(),
-                        TipsList = new List<string>()
                     });
                 }
 
@@ -84,20 +83,40 @@ namespace MomNom_Backend.Controllers
                 var remainingNutritions = nutrients.Select(x => new
                 {
                     x.nutrientName,
-                    remainingNutrient = x.goalAmount - x.nutrientAmount
+                    remainingNutrient = x.goalAmount - x.nutrientAmount,
+                    x.unit
                 }).ToList();
 
                 List<WeightGain> weightGainList = await _procedureHandler.GetWeightGainReport(user.UserId, plan.PlanId, date);
-                var currWeightGain = weightGainList.OrderBy(x => x.year).ThenBy(x => x.monthNumber).Select(x => new WeightGainCalc
+
+                var currWeightGain = weightGainList.OrderByDescending(x => x.year).ThenByDescending(x => x.monthNumber).Select(x => new WeightGainCalc
                 {
                     MonthYear = x.monthName,
                     MonthlyGain = x.monthlyGain,
                     TotalGain = x.totalGain,
-                    Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2) + "%"
+                    RecGain = x.recGain,
+                    Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2).ToString()
                 }).FirstOrDefault();
 
                 List<DailyLog> dailyLog = await _procedureHandler.GetDailyFoodReport(user.UserId, plan.PlanId, date);
-                List<DailyLog> logs = dailyLog.Take(4).ToList();
+                //List<DailyLog> logs = dailyLog.Take(4).ToList();
+                List<DailyLog> logs = dailyLog.Select((e) => {
+                    var temp= new DailyLog
+                    {
+                        Amount = e.Amount,
+                        FoodName = e.FoodName,
+                        TotalCalories = e.TotalCalories,
+                        NutrientsListDetail = e.NutrientsListDetail.Where(x => dashboardNutrients.Contains(x.nutrientName)).ToList()
+                    };
+                    temp.NutrientsListDetail.Add(new Model.Object.Nutrient
+                    {
+                        amount = temp.TotalCalories,
+                        nutrientName = "Calorie",
+                        unit = "kcal"
+                    });
+
+                    return temp;
+                } ).ToList();
 
                 return new BaseResponse<DashboardResponse>(new DashboardResponse { Plans = plans, Username = user.Username, RemainingNutritions = remainingNutritions, CurrWeightGain = currWeightGain , DailyLogs = logs});
             }

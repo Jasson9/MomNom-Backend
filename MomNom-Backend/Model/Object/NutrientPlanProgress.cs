@@ -10,5 +10,7 @@ namespace MomNom_Backend.Model.Object
         public decimal nutrientAmount { get; set; }
 
         public decimal goalAmount { get; set; }
+
+        public string unit { get; set; }
     }
 }

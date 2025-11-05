@@ -14,6 +14,5 @@ namespace MomNom_Backend.Model.Response
 
         public WeightGainCalc? CurrWeightGain { get; set; }
 
-        public List<string>? TipsList { get; set; }
     }
 }

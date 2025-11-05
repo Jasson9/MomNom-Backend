@@ -45,7 +45,7 @@ namespace MomNom_Backend.Controllers
                     MonthlyGain = x.monthlyGain,
                     TotalGain = x.totalGain,
                     RecGain = x.recGain,
-                    Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2) + "%",
+                    Percentage = Math.Round(((x.totalGain / x.recGain) * 100), 2).ToString(),
                 }).ToList() ?? [];
 
                 return new BaseResponse<WeightPlanProgressResponse>(new WeightPlanProgressResponse { weightGainProgress = weightGainListCalc });
@@ -66,7 +66,7 @@ namespace MomNom_Backend.Controllers
         }
 
         [HttpPost("AddNewWeight")]
-        public async Task<ActionResult<BaseResponse<NewWeightRequest>>> AddNewMonthlyWeight([FromHeader] string authentication, [FromBody] NewWeightRequest weightReq)
+        public async Task<ActionResult<BaseResponse<WeightPlanProgressResponse>>> AddNewMonthlyWeight([FromHeader] string authentication, [FromBody] NewWeightRequest weightReq)
         {
             try
             {
@@ -100,7 +100,8 @@ namespace MomNom_Backend.Controllers
                     _context.TrMonthlyWeights.Update(tempWeight);
                     await _context.SaveChangesAsync();
 
-                    return new BaseResponse<NewWeightRequest>(weightReq);
+                    //return new BaseResponse<NewWeightRequest>(weightReq);
+                    return await WeightGainPlanProgress(authentication);
                 }
                 else
                 {
@@ -114,7 +115,7 @@ namespace MomNom_Backend.Controllers
                     });
                     await _context.SaveChangesAsync();
 
-                    return new BaseResponse<NewWeightRequest>(weightReq);
+                    return await WeightGainPlanProgress(authentication);
                 }
 
 
@@ -122,16 +123,16 @@ namespace MomNom_Backend.Controllers
             }
             catch (UnauthorizedException<MsUser> ex)
             {
-                return new UnauthorizedException<NewWeightRequest>(ex.ErrorMessage).toResponseOutput();
+                return new UnauthorizedException<WeightPlanProgressResponse>(ex.ErrorMessage).toResponseOutput();
             }
-            catch (BaseException<NewWeightRequest> ex)
+            catch (BaseException<WeightPlanProgressResponse> ex)
             {
                 return ex.toResponseOutput();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new InternalServerErrorException<NewWeightRequest>("Unexpected internal server error occured").toResponseOutput();
+                return new InternalServerErrorException<WeightPlanProgressResponse>("Unexpected internal server error occured").toResponseOutput();
             }
         }
     }
