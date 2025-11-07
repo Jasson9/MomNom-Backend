@@ -28,6 +28,8 @@ public partial class MomNomContext : DbContext
 
     public virtual DbSet<MsUser> MsUsers { get; set; }
 
+    public virtual DbSet<MsVersion> MsVersions { get; set; }
+
     public virtual DbSet<TrDailyCalorieLog> TrDailyCalorieLogs { get; set; }
 
     public virtual DbSet<TrMonthlyWeight> TrMonthlyWeights { get; set; }
@@ -206,6 +208,29 @@ public partial class MomNomContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(100)
                 .HasColumnName("username");
+        });
+
+        modelBuilder.Entity<MsVersion>(entity =>
+        {
+            entity.HasKey(e => e.VersionId).HasName("PRIMARY");
+
+            entity.Property(e => e.VersionId).HasColumnName("versionID");
+            entity.Property(e => e.Changelogs)
+                .HasColumnType("mediumtext")
+                .HasColumnName("changelogs");
+            entity.Property(e => e.CreatedDatetime)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("datetime")
+                .HasColumnName("createdDatetime");
+            entity.Property(e => e.DownloadLink)
+                .HasColumnType("mediumtext")
+                .HasColumnName("downloadLink");
+            entity.Property(e => e.Version)
+                .HasMaxLength(16)
+                .HasColumnName("version");
+            entity.Property(e => e.VersionChannel)
+                .HasMaxLength(16)
+                .HasColumnName("versionChannel");
         });
 
         modelBuilder.Entity<TrDailyCalorieLog>(entity =>
