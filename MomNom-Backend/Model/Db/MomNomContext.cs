@@ -34,6 +34,8 @@ public partial class MomNomContext : DbContext
 
     public virtual DbSet<TrMonthlyWeight> TrMonthlyWeights { get; set; }
 
+    public virtual DbSet<TrPasswordReset> TrPasswordResets { get; set; }
+
     public virtual DbSet<TrUserSession> TrUserSessions { get; set; }
 
     public virtual DbSet<TrWeeklyExercise> TrWeeklyExercises { get; set; }
@@ -294,6 +296,32 @@ public partial class MomNomContext : DbContext
                 .HasForeignKey(d => new { d.PlanId, d.UserId })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_trmonthlyweight_msplan_planid_userid");
+        });
+
+        modelBuilder.Entity<TrPasswordReset>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("TrPasswordReset");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .HasColumnName("email");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(255)
+                .HasColumnName("passwordHash");
+            entity.Property(e => e.Status)
+                .HasMaxLength(1)
+                .HasDefaultValueSql("_utf8mb4\\'P\\'")
+                .IsFixedLength()
+                .HasColumnName("status");
         });
 
         modelBuilder.Entity<TrUserSession>(entity =>
