@@ -68,14 +68,15 @@ namespace MomNom_Backend.Controllers
 
                 } else
                 {
-                    calcPrePregnancyWeight = planReq.currentWeight - ((1 / 84) * pregnancyDay);
+                    calcPrePregnancyWeight = planReq.currentWeight - ((1m / 84m) * pregnancyDay);
                 }
 
-                var bmiScore = calcPrePregnancyWeight / (planReq.height * planReq.height);
+                decimal heightMeter = planReq.height / 100;
+                var bmiScore = calcPrePregnancyWeight / (heightMeter * heightMeter);
                 string bmiCategory =  " ";
                 decimal tdee = 0;
                 var extraCalorie = 0;
-                tdee = ((10 * calcPrePregnancyWeight) + (6.25m * planReq.height) - (5 * age) - 161) * 1.375m;
+                tdee = ((10 * calcPrePregnancyWeight) + (6.25m * heightMeter) - (5 * age) - 161) * 1.375m;
 
                 if (bmiScore < 18.5m)
                 {
