@@ -59,9 +59,11 @@ namespace MomNom_Backend.Controllers
 
                 var age = today.Year - dateOfBirth.Year;
                 if (dateOfBirth.Date > today.AddYears(-age)) age--;
-
-                var pregnancyDay = planReq.weekPregnancy * 7;
+                
                 decimal calcPrePregnancyWeight = 0;
+                if(planReq.prePregnancyWeight == 0)
+                {
+                var pregnancyDay = planReq.weekPregnancy * 7;
                 if (pregnancyDay > 84)
                 {
                     calcPrePregnancyWeight = planReq.currentWeight - 1 - (0.44m * (planReq.weekPregnancy - 12));
@@ -69,6 +71,10 @@ namespace MomNom_Backend.Controllers
                 } else
                 {
                     calcPrePregnancyWeight = planReq.currentWeight - ((1m / 84m) * pregnancyDay);
+                }
+                } else
+                {
+                    calcPrePregnancyWeight = planReq.prePregnancyWeight;
                 }
 
                 decimal heightMeter = planReq.height / 100;
@@ -108,7 +114,7 @@ namespace MomNom_Backend.Controllers
                             PlanId = planCnt+1,
                             StartWeek = planReq.weekPregnancy,
                             Weight = planReq.currentWeight,
-                            PrePregnancyWeight = planReq.prePregnancyWeight,
+                            PrePregnancyWeight = calcPrePregnancyWeight,
                             Height = planReq.height,
                             UserId = user.UserId,
                             CalFirstTrimester = calFirstTrimester,
