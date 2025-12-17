@@ -76,7 +76,7 @@ namespace MomNom_Backend.Controllers
                 string bmiCategory =  " ";
                 decimal tdee = 0;
                 var extraCalorie = 0;
-                tdee = ((10 * calcPrePregnancyWeight) + (6.25m * heightMeter) - (5 * age) - 161) * 1.375m;
+                tdee = ((10 * calcPrePregnancyWeight) + (6.25m * planReq.height) - (5 * age) - 161) * 1.375m;
 
                 if (bmiScore < 18.5m)
                 {
