@@ -72,7 +72,7 @@ namespace MomNom_Backend.Controllers
 
                 var dashboardNutrients = new List<string>
                 {
-                    "Calorie",
+                    "Calories",
                     "Carbohydrate",
                     "Protein",
                     "Fiber"
