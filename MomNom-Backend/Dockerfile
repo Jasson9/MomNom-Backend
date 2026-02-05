@@ -16,6 +16,7 @@ COPY ["MomNom-Backend/MomNom-Backend.csproj", "MomNom-Backend/"]
 RUN dotnet restore "./MomNom-Backend/MomNom-Backend.csproj"
 COPY . .
 WORKDIR "/src/MomNom-Backend"
+ENV TZ=Asia/Jakarta
 RUN dotnet build "./MomNom-Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
